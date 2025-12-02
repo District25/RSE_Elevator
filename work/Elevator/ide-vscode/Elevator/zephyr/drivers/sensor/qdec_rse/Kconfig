@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+
+#config HEVS_RSE_QDEC_SENSOR
+config QDEC_RSE
+	bool "RSE QDEC driver"
+	default y
+	depends on DT_HAS_HEVS_RSE_QDEC_ENABLED
+	select USE_STM32_LL_TIM
+	help
+	  Derivation of the STM32 family Quadrature Decoder driver.

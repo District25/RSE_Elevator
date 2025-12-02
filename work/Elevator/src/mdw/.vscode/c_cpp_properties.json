@@ -1,0 +1,26 @@
+{
+    "configurations": [
+        {
+            "name": "Nucleo-l476rg",
+            "includePath": [
+                "${userHome}/.platformio/packages/framework-zephyr/include",
+                "${userHome}/.platformio/packages/toolchain-gccarmnoneeabi/lib/gcc/**",
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/../../src/**",
+                "${workspaceFolder}/../../ide-vscode/Elevator"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "USE_XF_CORE_BEHAVIOR_CLASS",
+                "USE_XF_CORE_DISPATCHER_CLASS"
+            ],
+            "compilerPath": "${userHome}/.platformio/packages/toolchain-gccarmnoneeabi/bin/arm-none-eabi-gcc.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++14",
+            "intelliSenseMode": "gcc-arm"
+        }
+    ],
+    "version": 4
+}

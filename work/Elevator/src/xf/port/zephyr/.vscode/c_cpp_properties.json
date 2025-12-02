@@ -1,0 +1,31 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${userHome}/.platformio/packages/framework-zephyr/include",
+                "${userHome}/.platformio/packages/toolchain-gccarmnoneeabi/arm-none-eabi/include",
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/../../../../test-bench/common",
+                "${workspaceFolder}/../../../../src/xf/include"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "XF_PORT_ZEPHYR",
+                "USE_XF_PORT_ZEPHYR_XF_CLASS",
+                "USE_XF_PORT_ZEPHYR_DISPATCHER_CLASS",
+                "USE_XF_PORT_ZEPHYR_EVENT_QUEUE_CLASS",
+                "USE_XF_PORT_ZEPHYR_MUTEX_CLASS",
+                "USE_XF_PORT_ZEPHYR_THREAD_CLASS"
+            ],
+            "windowsSdkVersion": "10.0.19041.0",
+            "compilerPath": "cl.exe",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-msvc-x64"
+        }
+    ],
+    "version": 4
+}

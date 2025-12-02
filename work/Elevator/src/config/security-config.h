@@ -1,0 +1,10 @@
+#ifndef SECURITY_CONFIG_H
+#define SECURITY_CONFIG_H
+
+typedef enum IssueNumber {
+    UNKNOWN_ISSUE = 0,
+    ISSUE_MAXIMUM_LIFT_EXCEEDED = 1,
+    ISSUE_MOTOR_NO_MORE_SPINNING,
+} IssueNumber;
+
+#endif // SECURITY_CONFIG_H

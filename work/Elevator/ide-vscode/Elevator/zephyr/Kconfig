@@ -1,0 +1,7 @@
+#
+
+# Call Zephyrs "in-tree" Kconfig file
+source "Kconfig"
+
+# Call Kconfig files for "out-of-tree" drivers
+rsource "drivers/Kconfig"

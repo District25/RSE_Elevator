@@ -1,0 +1,129 @@
+/*
+ * Copyright (c) 2024 HES-SO Valais, ECS, Sion
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+ #include <zephyr/dt-bindings/sensor/qdec_stm32.h>
+
+/ {
+    leds {
+        compatible = "gpio-leds";
+
+        led_elevator_in_floor_1: elevator_in_floor_1 {
+            gpios = <&gpioa 6 GPIO_ACTIVE_LOW>;
+            label = "LED Elevator In Floor 1";
+        };
+
+        led_elevator_in_floor_2: elevator_in_floor_2 {
+            gpios = <&gpioa 7 GPIO_ACTIVE_LOW>;
+            label = "LED Elevator In Floor 2";
+        };
+        
+        led_call_elevator_in_floor_1: call_elevator_in_floor_1 {
+            gpios = <&gpioa 12 GPIO_ACTIVE_LOW>;
+            label = "LED Call Elevator In Floor 1";
+        };
+
+        led_call_elevator_in_floor_2: call_elevator_in_floor_2 {
+            gpios = <&gpioa 11 GPIO_ACTIVE_LOW>;
+            label = "LED Call Elevator In Floor 2";
+        };
+
+        led_elevator_move_up: elevator_move_up {
+            gpios = <&gpiob 2 GPIO_ACTIVE_LOW>;
+            label = "Elevator Move Up";
+        };
+
+        led_elevator_move_down: elevator_move_down {
+            gpios = <&gpiob 1 GPIO_ACTIVE_LOW>;
+            label = "Elevator Move Down";
+        };
+
+        led_elevator_error: elevator_error {
+            gpios = <&gpioc 10 GPIO_ACTIVE_LOW>;
+            label = "Elevator Error";
+        };
+
+        motor_enable: motor_enable {
+            gpios = <&gpioc 6 GPIO_ACTIVE_HIGH>;
+            label = "Motor Enable";
+        };
+
+        motor_direction: motor_direction {
+            gpios = <&gpioc 5 GPIO_ACTIVE_HIGH>;
+            label = "Motor Direction";
+        };
+    };
+
+    buttons {
+        compatible = "gpio-keys";
+
+        limit_switch_floor_1: limit_switch_floor_1 {
+            gpios = <&gpiob 5 GPIO_ACTIVE_LOW>;
+            label = "Limit Switch Floor 1";
+        };
+        
+        limit_switch_floor_2: limit_switch_floor_2 {
+            gpios = <&gpiob 4 GPIO_ACTIVE_LOW>;
+            label = "Limit Switch Floor 2";
+        };
+
+        button_call_on_floor_1: button_call_on_floor_1 {
+            gpios = <&gpiob 9 GPIO_ACTIVE_LOW>;
+            label = "Button";
+        };
+
+        button_call_on_floor_2: button_call_on_floor_2 {
+            gpios = <&gpiob 8 GPIO_ACTIVE_LOW>;
+            label = "Button";
+        };
+
+        button_elevator_up: button_elevator_up {
+            gpios = <&gpioc 1 GPIO_ACTIVE_LOW>;
+            label = "Button";
+        };
+
+        button_elevator_down: button_elevator_down {
+            gpios = <&gpioc 0 GPIO_ACTIVE_LOW>;
+            label = "Button";
+        };
+    };
+
+    aliases {
+        qdec0 = &qdec;
+        decoder = &qdec;
+
+        led-in-floor-1 = &led_elevator_in_floor_1;
+        led-in-floor-2 = &led_elevator_in_floor_2;
+        led-call-elevator-floor-1 = &led_call_elevator_in_floor_1;
+        led-call-elevator-floor-2 = &led_call_elevator_in_floor_2;
+        led-elevator-move-up = &led_elevator_move_up;
+        led-elevator-move-down = &led_elevator_move_down;
+        led-elevator-error = &led_elevator_error;
+        
+        motor-enable = &motor_enable;
+        motor-direction = &motor_direction;
+
+        limit-switch-floor-1 = &limit_switch_floor_1;
+        limit-switch-floor-2 = &limit_switch_floor_2;
+        button-call-on-floor-1 = &button_call_on_floor_1;
+        button-call-on-floor-2 = &button_call_on_floor_2;
+        button-elevator-up = &button_elevator_up;
+        button-elevator-down = &button_elevator_down;
+    };
+};
+
+&timers1 {
+    status = "okay";
+
+    qdec: qdec {
+        compatible = "st,stm32-qdec";
+        status = "okay";
+        pinctrl-0 = <&tim1_ch1_pa8 &tim1_ch2_pa9>;
+        pinctrl-names = "default";
+        st,input-polarity-inverted;
+        st,input-filter-level = <FDIV32_N8>;
+        st,counts-per-revolution = <4172>;    /* 14 * 298 = 4172 */
+    };
+};

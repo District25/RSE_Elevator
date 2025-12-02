@@ -1,0 +1,118 @@
+{
+    "folders": [
+        {
+            "path": "."
+        },
+        {
+            "name": "app",
+            "path": "../../src/app"
+        },
+        {
+            "name": "config",
+            "path": "../../src/config"
+        },
+        {
+            "name": "event",
+            "path": "../../src/event"
+        },
+        {
+            "name": "mdw",
+            "path": "../../src/mdw"
+        },
+        {
+            "name": "security",
+            "path": "../../src/security"
+        },
+        {
+            "name": "xf-includes",
+            "path": "../../src/xf/include"
+        },
+        {
+            "name": "xf-core",
+            "path": "../../src/xf/core"
+        },
+        {
+            "name": "xf-port-zephyr",
+            "path": "../../src/xf/port/zephyr"
+        },
+        {
+            "name": "platform/nucleo-l476rg-zephyr",
+            "path": "../../src/platform/nucleo-l476rg-zephyr"
+        }
+    ],
+    "settings": {
+        "files.exclude": {
+            "**/.git": true,
+            "**/.svn": true,
+            "**/.hg": true,
+            "**/CVS": true,
+            "**/.DS_Store": true,
+            "**/Thumbs.db": true,
+            ".vscode": false
+        },
+        "files.associations": {
+            "ostream": "cpp",
+            "*.tcc": "cpp",
+            "compare": "cpp",
+            "random": "cpp",
+            "array": "cpp",
+            "vector": "cpp",
+            "xstring": "cpp",
+            "xutility": "cpp",
+            "string": "cpp",
+            "string_view": "cpp",
+            "algorithm": "cpp",
+            "deque": "cpp",
+            "functional": "cpp",
+            "list": "cpp",
+            "memory": "cpp",
+            "system_error": "cpp",
+            "tuple": "cpp",
+            "type_traits": "cpp",
+            "unordered_map": "cpp",
+            "xhash": "cpp",
+            "xlocale": "cpp",
+            "xmemory": "cpp",
+            "queue": "cpp",
+            "xlocinfo": "cpp",
+            "xtr1common": "cpp",
+            "xiosbase": "cpp",
+            "iterator": "cpp",
+            "initializer_list": "c",
+            "cstdint": "cpp",
+            "xlocnum": "cpp",
+            "utility": "cpp",
+            "typeinfo": "cpp",
+            "atomic": "cpp",
+            "bit": "cpp",
+            "cctype": "cpp",
+            "clocale": "cpp",
+            "cmath": "cpp",
+            "concepts": "cpp",
+            "cstdarg": "cpp",
+            "cstddef": "cpp",
+            "cstdio": "cpp",
+            "cstdlib": "cpp",
+            "cstring": "cpp",
+            "ctime": "cpp",
+            "cwchar": "cpp",
+            "cwctype": "cpp",
+            "exception": "cpp",
+            "ios": "cpp",
+            "iosfwd": "cpp",
+            "limits": "cpp",
+            "map": "cpp",
+            "new": "cpp",
+            "numbers": "cpp",
+            "numeric": "cpp",
+            "set": "cpp",
+            "stdexcept": "cpp",
+            "streambuf": "cpp",
+            "xfacet": "cpp",
+            "xstddef": "cpp",
+            "xtree": "cpp",
+            "memory_resource": "cpp",
+            "cinttypes": "cpp"
+        }
+    }
+}

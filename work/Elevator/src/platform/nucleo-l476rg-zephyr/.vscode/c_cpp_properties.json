@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "name": "Nucleo-l476rg",
+            "includePath": [
+                "${userHome}/.platformio/packages/framework-zephyr/include",
+                "${userHome}/.platformio/packages/toolchain-gccarmnoneeabi/lib/gcc/**",
+                "${userHome}/.platformio/packages/framework-zephyr/_pio/modules/hal/stm32/stm32cube/stm32l4xx/drivers/include",
+                "${userHome}/.platformio/packages/framework-zephyr/_pio/modules/hal/stm32/stm32cube/stm32l4xx/soc",
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/../../../src/xf/include"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compilerPath": "${userHome}/.platformio/packages/toolchain-gccarmnoneeabi/bin/arm-none-eabi-gcc.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++14",
+            "intelliSenseMode": "gcc-arm"
+        }
+    ],
+    "version": 4
+}

@@ -1,0 +1,97 @@
+/*
+ * Copyright (c) 2024 HES-SO Valais, ECS, Sion
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+ #include <zephyr/dt-bindings/sensor/qdec_stm32.h>
+
+/ {
+    leds {
+        compatible = "gpio-leds";
+
+        led_up: elevator_led0 {
+            gpios = <&gpioa 15 GPIO_ACTIVE_HIGH>;
+            label = "LED UP";
+        };
+
+        motor_enable: motor_enable {
+            gpios = <&gpioa 11 GPIO_ACTIVE_HIGH>;
+            label = "Motor Enable";
+        };
+
+        motor_direction: motor_direction {
+            gpios = <&gpioa 12 GPIO_ACTIVE_HIGH>;
+            label = "Motor Direction";
+        };
+    };
+
+    buttons {
+        compatible = "gpio-keys";
+
+        button_up: button_1 {
+            gpios = <&gpioc 9 GPIO_ACTIVE_LOW>;
+            label = "Navigation Up";
+        };
+        
+        button_down: button_2 {
+            gpios = <&gpioa 10 GPIO_ACTIVE_LOW>;
+            label = "Navigation Down";
+        };
+
+        button_left: button_3 {
+            gpios = <&gpiob 4 GPIO_ACTIVE_LOW>;
+            label = "Navigation Left";
+        };
+        
+        button_right: button_4 {
+            gpios = <&gpioc 8 GPIO_ACTIVE_LOW>;
+            label = "Navigation Right";
+        };
+        
+        button_center: button_5 {
+            gpios = <&gpiob 5 GPIO_ACTIVE_LOW>;
+            label = "Navigation Center";
+        };
+    };
+
+    aliases {
+        qdec0 = &qdec;
+        decoder = &qdec;
+        led-up = &led_up;
+
+        led-in-floor-1 = &led_up;
+        led-in-floor-2 = &led_up;
+        led-call-elevator-floor-1 = &led_up;
+        led-call-elevator-floor-2 = &led_up;
+        led-elevator-move-up = &led_up;
+        led-elevator-move-down = &led_up;
+        led-elevator-error = &green_led_2;
+        led-elevator-operational = &led_up;
+
+        limit-switch-floor-1 = &button_down;
+        limit-switch-floor-2 = &button_up;
+        button-call-on-floor-1 = &button_left;
+        button-call-on-floor-2 = &button_right;
+        button-elevator-up = &button_center;
+        button-elevator-down = &button_center;
+
+        motor-enable = &motor_enable;
+        motor-direction = &motor_direction;
+    };
+};
+
+&timers1 {
+    status = "okay";
+
+    qdec: qdec {
+    /*  compatible = "st,stm32-qdec";   */
+        compatible = "hevs,rse-qdec";
+        status = "okay";
+        pinctrl-0 = <&tim1_ch1_pa8 &tim1_ch2_pa9>;
+        pinctrl-names = "default";
+        st,input-polarity-inverted;
+        st,input-filter-level = <FDIV32_N8>;
+        st,counts-per-revolution = <14>;
+    };
+};
