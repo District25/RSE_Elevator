@@ -1,5 +1,5 @@
-#ifndef SECURITY_MAXIMUM_LIFT_MONITOR_H
-#define SECURITY_MAXIMUM_LIFT_MONITOR_H
+#ifndef SECURITY_MOTOR_ENCODER_MONITOR_H
+#define SECURITY_MOTOR_ENCODER_MONITOR_H
 
 #include <cstdint>
 #include <zephyr/kernel.h>
@@ -8,13 +8,11 @@
 #include "motor/decoder.h"
 #include "interface/elevatorcontrollerobserver.h"
 
-namespace security {
-
-    class MaximumLiftMonitor : public Monitor, public interface::ElevatorControllerObserver
-    {
+namespace security{
+    class MotorEncoderMonitor : public Monitor, public interface::ElevatorControllerObserver{
         public:
-            MaximumLiftMonitor();
-            ~MaximumLiftMonitor();
+            MotorEncoderMonitor();
+            ~MotorEncoderMonitor();
             
             void initialize(elevator::Controller & controller, motor::Decoder & decoder);
             void start();
@@ -44,8 +42,7 @@ namespace security {
 
             // State machine processing
             void SM_processEvent(SMEvents eventId);
-            bool checkElevatorPositionOk();
-            
+
             // Timer callback (static)
             static void timerCallback(struct k_timer * timer);
             void handleTimerTimeout();
@@ -54,24 +51,6 @@ namespace security {
             elevator::Controller * controller_ {nullptr};
             motor::Decoder * decoder_ {nullptr};
             SMStates currentState {ST_WAIT_4_ELEVATOR_2_START};
-            int32_t minPos; // Petites marges rajoutées 
-            int32_t maxPos;
-            bool errorAlreadyNotified {false};  // Prevent recursive notifications
-
-            bool limitsCalibrated = false;
-            bool limitsLocked = false;
-            bool bottomCaptured = false;
-            bool topCaptured = false;
-
-            int32_t bottomCapturePos = 0;
-            int32_t topCapturePos = 0;
-
-            
-            // Timer for periodic position checks
-            struct k_timer checkTimer;
-            const uint32_t CHECK_INTERVAL_MS = 200;  // Check interval in milliseconds
-            bool timerActive {false};
     };
-} // end of namespace
-
-#endif // SECURITY_MAXIMUM_LIFT_MONITOR_H
+}
+#endif

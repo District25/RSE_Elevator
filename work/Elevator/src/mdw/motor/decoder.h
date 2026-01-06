@@ -21,6 +21,7 @@ public:
 
     int32_t getPosition() const;            ///< Returns the position of the motor (degrees on the motors spindle).
     void resetPosition();                   ///< Sets the position information to zero.
+    void setPosition(int32_t newPosition);  ///< Forces the position to a specific value (for recalibration).
 
     Driver::Direction getDirection() const; ///< Returns the measured direction of the motor. Retuns DIRECTION_UNKNOWN when motor is not moving.
 

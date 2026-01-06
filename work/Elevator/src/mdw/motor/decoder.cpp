@@ -41,6 +41,11 @@ void Decoder::resetPosition()
     position = 0;
 }
 
+void Decoder::setPosition(int32_t newPosition)
+{
+    position = newPosition;
+}
+
 Driver::Direction Decoder::getDirection() const
 {
     if (motorDriver and
@@ -86,13 +91,13 @@ bool Decoder::executeOnce()
         }
         direction = val.val1;
 
-        //Trace::out("Position = %d degrees, direction: %d", angle, direction);
+        //Trace::out("Decoder: Position = %d degrees, direction: %d", angle, direction);
 
         // Update absolute position
         currentAngle = angle;
         position += calculateAngleDifference();
 
-        //Trace::out("Position: %d", position);
+        //Trace::out("Decoder: Absolute Position: %ld", position);
     }
 
     return true;

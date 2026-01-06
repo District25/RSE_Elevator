@@ -4,6 +4,7 @@
 namespace security {
 
 class IssueNotifier;
+class MaximumLiftMonitor;
 
 /**
  * @brief Factory class for the security package.
@@ -19,8 +20,7 @@ public:
 
 protected:
     static IssueNotifier & getIssueNotifier();
-    
-    // TODO: Add static methods returning the monitor objects here
+    static MaximumLiftMonitor & getMaximumLiftMonitor();
 };
 
 } // namespace security
