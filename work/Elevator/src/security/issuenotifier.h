@@ -40,7 +40,10 @@ protected:
     static constexpr const uint8_t MAX_OBSERVERS = 8;                   ///< Maximum allowed observers.
     uint8_t observerCount;                                              ///< Stores how many observers are subscribed.
     interface::SecurityIssueObserver * observer[MAX_OBSERVERS];         ///< Array holding subscribed observers.
-};
+
+private:
+    bool issueAlreadySent = false;
+};  
 
 } // namespace security
 #endif // SECURITY_ISSUE_NOTIFIER_H

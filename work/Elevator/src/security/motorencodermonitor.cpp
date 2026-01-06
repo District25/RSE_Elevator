@@ -95,11 +95,6 @@ void MotorEncoderMonitor::onElevatorReachedFloor(FloorNumber floorNumber)
 
 void MotorEncoderMonitor::onElevatorError()
 {
-    Trace::out("MotorEncoderMonitor: Elevator error detected");
-    k_timer_stop(&checkTimer);
-
-    errorAlreadyNotified = true;
-    
     if (currentState != ST_MOTOR_ERROR)
     {
         SM_processEvent(evError);
@@ -114,20 +109,14 @@ bool MotorEncoderMonitor::checkMotorPositionOk()
     }
 
     int32_t pos = decoder_->getPosition();
-    int32_t now = (int32_t)k_uptime_get();
+    int32_t diff = std::abs(pos - lastPos);
 
-    // If motors move, it's OK
-    if (std::abs(pos - lastPos) >= MIN_MOVEMENT_DEG)
+    lastPos = pos;
+
+    
+    if (diff < MIN_MOVEMENT_DEG)
     {
         lastPos = pos;
-        lastMoveTime = now;
-        return true;
-    }
-
-    // We verify if it didn't move for more than STALL TIMEOUT
-    if ((now - lastMoveTime) >= STALL_TIMEOUT_MS)
-    {
-        Trace::out("MotorEncoderMonitor: Motor seems stuck (pos=%ld)", pos);
         return false;
     }
 
@@ -188,7 +177,7 @@ void MotorEncoderMonitor::SM_processEvent(SMEvents eventId)
                 break;
 
             case ST_MOTOR_ERROR:
-                Trace::out("MotorEncoderMonitor: MOTOR ERROR - encoder stalled!");
+                Trace::out("MotorEncoderMonitor: ERROR");
                 if (!errorAlreadyNotified)
                 {
                     errorAlreadyNotified = true;

@@ -52,7 +52,14 @@ void IssueNotifier::unsubscribe(SecurityIssueObserver * observer)
 
 void IssueNotifier::notifySecurityIssue(IssueNumber issueNumber)
 {
-        for (int i = 0; i < MAX_OBSERVERS; i++)
+    if (issueAlreadySent)
+    {
+        return;
+    }
+
+    issueAlreadySent = true;
+
+    for (int i = 0; i < MAX_OBSERVERS; i++)
     {
         if (observer[i] != nullptr)
         {

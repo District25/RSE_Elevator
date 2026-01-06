@@ -139,7 +139,6 @@ namespace security {
 
     void MaximumLiftMonitor::onElevatorError()
     {
-        Trace::out("MaximumLiftMonitor: Elevator error detected");
         if (currentState != ST_LIFT_ERROR)
         {
             SM_processEvent(evError);
@@ -161,8 +160,8 @@ namespace security {
         const int32_t currentPos = decoder_->getPosition();
         const motor::Driver::Direction dir = decoder_->getDirection();
 
-        /*Trace::out("MaximumLiftMonitor: pos=%ld dir=%d (min=%ld max=%ld tol=%ld)",
-                   currentPos, (int)dir, minPos, maxPos, (long)POS_TOL);*/
+        Trace::out("MaximumLiftMonitor: pos=%ld dir=%d (min=%ld max=%ld tol=%ld)",
+                   currentPos, (int)dir, minPos, maxPos, (long)POS_TOL);
 
         // Check directionnel : on arrête seulement si dépassement EN HAUT ou EN BAS
         if (dir == motor::Driver::FORWARD) // montée (à confirmer dans ton driver)
@@ -249,7 +248,7 @@ namespace security {
                     break;
 
                 case ST_LIFT_ERROR:
-                    Trace::out("MaximumLiftMonitor: ERREUR - Ascenseur dépasse les limites!");
+                    Trace::out("MaximumLiftMonitor: ERROR");
                     if (!errorAlreadyNotified)
                     {
                         errorAlreadyNotified = true;
