@@ -1,6 +1,10 @@
 #ifndef SECURITY_FACTORY_H
 #define SECURITY_FACTORY_H
 
+#include "issuenotifier.h"
+#include "maximumliftmonitor.h"
+#include "motorencodermonitor.h" 
+
 namespace security {
 
 class IssueNotifier;
@@ -21,6 +25,7 @@ public:
 protected:
     static IssueNotifier & getIssueNotifier();
     static MaximumLiftMonitor & getMaximumLiftMonitor();
+    static MotorEncoderMonitor & getMotorEncoderMonitor();
 };
 
 } // namespace security

@@ -1,6 +1,4 @@
 #include "trace/trace.h"
-#include "issuenotifier.h"
-#include "maximumliftmonitor.h"
 #include "app/factory.h"
 #include "factory.h"
 
@@ -18,19 +16,24 @@ void Factory::preInitialize()
 void Factory::initialize()
 {
     Trace::out("Factory: Initializing security components...");
-    
+
     // Initialize MaximumLiftMonitor
     getMaximumLiftMonitor().initialize(app::Factory::controller(), app::Factory::motorDecoder());
-    //getMaximumLiftMonitor().calibratePositionLimits(-20, 520);
+
+    // Initialize MotorEncoderMonitor
+    getMotorEncoderMonitor().initialize(app::Factory::controller(), app::Factory::motorDecoder());
 }
 
 // static
 void Factory::build()
 {
     Trace::out("Factory: Starting security components...");
-    
-    // Start MaximumLiftMonitor (passive monitoring)
+
+    // Start MaximumLiftMonitor
     getMaximumLiftMonitor().start();
+
+    // Start MotorEncoderMonitor
+    getMotorEncoderMonitor().start();
 }
 
 // static
@@ -47,5 +50,11 @@ MaximumLiftMonitor & Factory::getMaximumLiftMonitor()
     return maximumLiftMonitor;
 }
 
+// static
+MotorEncoderMonitor & Factory::getMotorEncoderMonitor()
+{
+    static MotorEncoderMonitor motorEncoderMonitor;
+    return motorEncoderMonitor;
+}
 
 } // namespace security
