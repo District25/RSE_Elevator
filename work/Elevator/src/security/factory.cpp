@@ -22,6 +22,13 @@ void Factory::initialize()
 
     // Initialize MotorEncoderMonitor
     getMotorEncoderMonitor().initialize(app::Factory::controller(), app::Factory::motorDecoder());
+
+    // Initialize FloorLimitSwitchesMonitor (Task3)
+    getFloorLimitSwitchesMonitor().initialize(
+        app::Factory::controller(),
+        app::Factory::limitSwitchFloor1(),
+        app::Factory::limitSwitchFloor2()
+    );
 }
 
 // static
@@ -34,6 +41,9 @@ void Factory::build()
 
     // Start MotorEncoderMonitor
     getMotorEncoderMonitor().start();
+
+    // Start FloorLimitSwitchesMonitor
+    getFloorLimitSwitchesMonitor().start();
 }
 
 // static
@@ -55,6 +65,13 @@ MotorEncoderMonitor & Factory::getMotorEncoderMonitor()
 {
     static MotorEncoderMonitor motorEncoderMonitor;
     return motorEncoderMonitor;
+}
+
+// static
+FloorLimitSwitchesMonitor & Factory::getFloorLimitSwitchesMonitor()
+{
+    static FloorLimitSwitchesMonitor floorLimitSwitchesMonitor;
+    return floorLimitSwitchesMonitor;
 }
 
 } // namespace security

@@ -1,10 +1,11 @@
 #include "floorlimitswitchesmonitor.h"
 #include "trace/trace.h"
+#include <zephyr/kernel.h>
 
 namespace security {
 
 FloorLimitSwitchesMonitor::FloorLimitSwitchesMonitor()
-    : Monitor(ISSUE_LIMIT_SWITCHES)   // recommande: ajouter une issue dédiée
+    : Monitor(UNKNOWN_ISSUE)   // issue générique (fallback)
 {
     k_timer_init(&checkTimer, &FloorLimitSwitchesMonitor::timerCallback, nullptr);
 }
@@ -20,12 +21,18 @@ void FloorLimitSwitchesMonitor::initialize(elevator::Controller & controller,
 {
     controller_ = &controller;
 
+    // store pointers for polling
+    swInput[0] = &limitSwitch0;
+    swInput[1] = &limitSwitch1;
+
     swActive[0] = false;
     swActive[1] = false;
 
     timerActive = false;
     errorAlreadyNotified = false;
     currentState = ST_WAIT_4_ELEVATOR_2_START;
+
+    pendingIssue = UNKNOWN_ISSUE;
 
     // Subscribe controller events
     if (controller_)
@@ -34,14 +41,11 @@ void FloorLimitSwitchesMonitor::initialize(elevator::Controller & controller,
         Trace::out("FloorLimitSwitchesMonitor: Subscribed to controller - result: %d", subscribeOk);
     }
 
-    // Subscribe limit switches (comme Button)
-    bool ok = true;
-    ok &= limitSwitch0.registerCallback(
-        this, (interface::InputCallbackProvider::CallbackMethod)&FloorLimitSwitchesMonitor::onLimitSwitchChanged);
-    ok &= limitSwitch1.registerCallback(
-        this, (interface::InputCallbackProvider::CallbackMethod)&FloorLimitSwitchesMonitor::onLimitSwitchChanged);
+    // IMPORTANT: do NOT register callbacks on limit switches -> avoid breaking base behavior
+    Trace::out("FloorLimitSwitchesMonitor: Using polling (no registerCallback on inputs)");
 
-    Trace::out("FloorLimitSwitchesMonitor: Subscribed to limit switches - result: %d", ok);
+    // initial read (optional)
+    updateSwitchStates();
 }
 
 void FloorLimitSwitchesMonitor::start()
@@ -51,6 +55,8 @@ void FloorLimitSwitchesMonitor::start()
         timerActive = true;
         errorAlreadyNotified = false;
         currentState = ST_WAIT_4_ELEVATOR_2_START;
+        pendingIssue = UNKNOWN_ISSUE;
+
         Trace::out("FloorLimitSwitchesMonitor: Started");
     }
 }
@@ -67,8 +73,13 @@ void FloorLimitSwitchesMonitor::stop()
 
 void FloorLimitSwitchesMonitor::onElevatorStarted()
 {
-    Trace::out("FloorLimitSwitchesMonitor: Elevator started");
+    Trace::out("FloorLimitSwitchesMonitor: Elevator started");  
     startTsMs = (int32_t)k_uptime_get();
+
+    pendingIssue = UNKNOWN_ISSUE;
+
+    // refresh states at start
+    updateSwitchStates();
 
     SM_processEvent(evElevatorStarted);
 
@@ -82,7 +93,9 @@ void FloorLimitSwitchesMonitor::onElevatorReachedFloor(FloorNumber floorNumber)
 {
     Trace::out("FloorLimitSwitchesMonitor: Elevator reached floor %d", floorNumber);
 
-    // Check cohérence à l'arrêt
+    // Update switches right now (because stop check is immediate)
+    updateSwitchStates();
+
     if (!checkAtStopOk(floorNumber))
     {
         SM_processEvent(evError);
@@ -106,14 +119,10 @@ void FloorLimitSwitchesMonitor::onElevatorError()
     }
 }
 
-void FloorLimitSwitchesMonitor::onLimitSwitchChanged(InputId limitSwitchIndex, bool active)
+void FloorLimitSwitchesMonitor::updateSwitchStates()
 {
-    // Dans ton projet: limitSwitchIndex == floorNumber (0 ou 1)
-    if (limitSwitchIndex < 2)
-    {
-        swActive[limitSwitchIndex] = active;
-        // Trace::out("FloorLimitSwitchesMonitor: sw[%d]=%d", limitSwitchIndex, active);
-    }
+    if (swInput[0]) swActive[0] = swInput[0]->isActive();
+    if (swInput[1]) swActive[1] = swInput[1]->isActive();
 }
 
 uint32_t FloorLimitSwitchesMonitor::countActive() const
@@ -134,7 +143,9 @@ bool FloorLimitSwitchesMonitor::checkDuringMoveOk()
     // 1) jamais 2 switches actifs
     if (activeCount > 1)
     {
-        Trace::out("FloorLimitSwitchesMonitor: ERROR - multiple switches active");
+        pendingIssue = ISSUE_LIMIT_SWITCH_MULTIPLE_ACTIVE;
+        Trace::out("FloorLimitSwitchesMonitor: ERROR - multiple switches active (sw0=%d sw1=%d)",
+                   swActive[0], swActive[1]);
         return false;
     }
 
@@ -143,7 +154,9 @@ bool FloorLimitSwitchesMonitor::checkDuringMoveOk()
     {
         if (activeCount == 1)
         {
-            Trace::out("FloorLimitSwitchesMonitor: ERROR - switch active while moving");
+            pendingIssue = ISSUE_LIMIT_SWITCH_ACTIVE_WHILE_MOVING;
+            Trace::out("FloorLimitSwitchesMonitor: ERROR - switch active while moving (sw0=%d sw1=%d)",
+                       swActive[0], swActive[1]);
             return false;
         }
     }
@@ -158,7 +171,9 @@ bool FloorLimitSwitchesMonitor::checkAtStopOk(FloorNumber floorNumber)
     // À l'arrêt: exactement 1 switch actif
     if (activeCount != 1)
     {
-        Trace::out("FloorLimitSwitchesMonitor: ERROR - expected 1 active switch at stop, got %d", activeCount);
+        pendingIssue = ISSUE_LIMIT_SWITCH_NONE_ACTIVE_AT_STOP;
+        Trace::out("FloorLimitSwitchesMonitor: ERROR - expected 1 active switch at stop, got %d (sw0=%d sw1=%d)",
+                   activeCount, swActive[0], swActive[1]);
         return false;
     }
 
@@ -167,7 +182,9 @@ bool FloorLimitSwitchesMonitor::checkAtStopOk(FloorNumber floorNumber)
     {
         if (!swActive[floorNumber])
         {
-            Trace::out("FloorLimitSwitchesMonitor: ERROR - wrong switch active at stop");
+            pendingIssue = ISSUE_LIMIT_SWITCH_WRONG_AT_STOP;
+            Trace::out("FloorLimitSwitchesMonitor: ERROR - wrong switch active at stop (floor=%d sw0=%d sw1=%d)",
+                       floorNumber, swActive[0], swActive[1]);
             return false;
         }
     }
@@ -198,6 +215,9 @@ void FloorLimitSwitchesMonitor::SM_processEvent(SMEvents eventId)
             }
             else if (eventId == evCheckTimeout)
             {
+                // refresh + check
+                updateSwitchStates();
+
                 if (!checkDuringMoveOk())
                 {
                     currentState = ST_SWITCH_ERROR;
@@ -228,11 +248,19 @@ void FloorLimitSwitchesMonitor::SM_processEvent(SMEvents eventId)
                 break;
 
             case ST_SWITCH_ERROR:
-                Trace::out("FloorLimitSwitchesMonitor: LIMIT SWITCH ERROR!");
+                Trace::out("FloorLimitSwitchesMonitor: LIMIT SWITCH ERROR! issue=%d", (int)pendingIssue);
                 if (!errorAlreadyNotified)
                 {
                     errorAlreadyNotified = true;
-                    notifySecurityIssue(ISSUE_LIMIT_SWITCHES); // recommande: issue dédiée
+
+                    if (pendingIssue == UNKNOWN_ISSUE)
+                    {
+                        notifySecurityIssue(UNKNOWN_ISSUE);
+                    }
+                    else
+                    {
+                        notifySecurityIssue(pendingIssue);
+                    }
                 }
                 break;
 
@@ -252,6 +280,8 @@ void FloorLimitSwitchesMonitor::handleTimerTimeout()
 {
     if (currentState == ST_MONITORING_SWITCHES && !errorAlreadyNotified)
     {
+        // update + check on each tick
+        updateSwitchStates();
         SM_processEvent(evCheckTimeout);
     }
 }

@@ -6,25 +6,20 @@
 
 #include "monitor.h"
 #include "controller.h"
-#include "security-config.h"
+#include "../config/security-config.h"
 
-#include "interface/inputcallbackprovider.h"
 #include "interface/elevatorcontrollerobserver.h"
 #include "io/input.h"
 
 namespace security {
 
-class FloorLimitSwitchesMonitor : protected interface::InputCallbackProvider,
-                                 public Monitor,
+class FloorLimitSwitchesMonitor : public Monitor,
                                  public interface::ElevatorControllerObserver
 {
 public:
-    using InputId = io::Input::InputId;
-
     FloorLimitSwitchesMonitor();
     ~FloorLimitSwitchesMonitor();
 
-    // 3 capteurs d'étages (adapter si tu as plus/moins)
     void initialize(elevator::Controller & controller,
                     io::Input & limitSwitch0,
                     io::Input & limitSwitch1);
@@ -37,10 +32,6 @@ protected:
     void onElevatorStarted() override;
     void onElevatorReachedFloor(FloorNumber floorNumber) override;
     void onElevatorError() override;
-
-protected:
-    // InputCallbackProvider
-    void onLimitSwitchChanged(InputId limitSwitchIndex, bool active);
 
 private:
     // State machine
@@ -64,6 +55,9 @@ private:
     bool checkAtStopOk(FloorNumber floorNumber);
     uint32_t countActive() const;
 
+    // Polling
+    void updateSwitchStates();
+
     // Timer
     static void timerCallback(struct k_timer * timer);
     void handleTimerTimeout();
@@ -71,8 +65,14 @@ private:
 private:
     elevator::Controller * controller_ {nullptr};
 
-    // état des switches: index 0..2
+    // Pointers to physical inputs (polling)
+    io::Input * swInput[2] {nullptr, nullptr};
+
+    // cached states
     bool swActive[2] {false, false};
+
+    // issue to send
+    IssueNumber pendingIssue {UNKNOWN_ISSUE};
 
     SMStates currentState {ST_WAIT_4_ELEVATOR_2_START};
 
@@ -82,7 +82,7 @@ private:
     bool timerActive {false};
     bool errorAlreadyNotified {false};
 
-    // petite tolérance juste après démarrage (le switch peut rester actif un tout petit moment)
+    // grace period after start
     int32_t startTsMs {0};
     const int32_t START_GRACE_MS = 300;
 };
