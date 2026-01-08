@@ -84,7 +84,7 @@ namespace security {
 
     void MaximumLiftMonitor::onElevatorReachedFloor(FloorNumber floorNumber)
     {
-        Trace::out(">>> MaximumLiftMonitor::onElevatorReachedFloor CALLED with floor %d", floorNumber);
+        //Trace::out(">>> MaximumLiftMonitor::onElevatorReachedFloor CALLED with floor %d", floorNumber);
 
         if (decoder_)
         {
@@ -159,10 +159,9 @@ namespace security {
 
         const int32_t currentPos = decoder_->getPosition();
         const motor::Driver::Direction dir = decoder_->getDirection();
-
-        Trace::out("MaximumLiftMonitor: pos=%ld dir=%d (min=%ld max=%ld tol=%ld)",
-                   currentPos, (int)dir, minPos, maxPos, (long)POS_TOL);
-
+        /*Trace::out("MaximumLiftMonitor: pos=%ld dir=%d (min=%ld max=%ld tol=%ld)",
+                   currentPos, (int)dir, minPos, maxPos, (long)POS_TOL);*/
+                 
         // Check directionnel : on arrête seulement si dépassement EN HAUT ou EN BAS
         if (dir == motor::Driver::FORWARD) // montée (à confirmer dans ton driver)
         {
@@ -240,15 +239,15 @@ namespace security {
             switch (currentState)
             {
                 case ST_WAIT_4_ELEVATOR_2_START:
-                    Trace::out("MaximumLiftMonitor: En attente que l'ascenseur bouge");
+                    //Trace::out("MaximumLiftMonitor: En attente que l'ascenseur bouge");
                     break;
 
                 case ST_MONITORING_ELEVATOR:
-                    Trace::out("MaximumLiftMonitor: Surveillance de l'ascenseur en cours");
+                   //Trace::out("MaximumLiftMonitor: Surveillance de l'ascenseur en cours");
                     break;
 
                 case ST_LIFT_ERROR:
-                    Trace::out("MaximumLiftMonitor: ERROR");
+                    //Trace::out("MaximumLiftMonitor: ERROR");
                     if (!errorAlreadyNotified)
                     {
                         errorAlreadyNotified = true;

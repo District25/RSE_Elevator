@@ -38,11 +38,8 @@ void FloorLimitSwitchesMonitor::initialize(elevator::Controller & controller,
     if (controller_)
     {
         bool subscribeOk = controller_->subscribe(this);
-        Trace::out("FloorLimitSwitchesMonitor: Subscribed to controller - result: %d", subscribeOk);
+        Trace::out("[SW]  Subscribed to controller - result: %d", subscribeOk);
     }
-
-    // IMPORTANT: do NOT register callbacks on limit switches -> avoid breaking base behavior
-    Trace::out("FloorLimitSwitchesMonitor: Using polling (no registerCallback on inputs)");
 
     // initial read (optional)
     updateSwitchStates();
@@ -57,7 +54,7 @@ void FloorLimitSwitchesMonitor::start()
         currentState = ST_WAIT_4_ELEVATOR_2_START;
         pendingIssue = UNKNOWN_ISSUE;
 
-        Trace::out("FloorLimitSwitchesMonitor: Started");
+        Trace::out("[SW]  Started");
     }
 }
 
@@ -67,13 +64,13 @@ void FloorLimitSwitchesMonitor::stop()
     {
         timerActive = false;
         k_timer_stop(&checkTimer);
-        Trace::out("FloorLimitSwitchesMonitor: Stopped");
+        Trace::out("[SW]  Stopped");
     }
 }
 
 void FloorLimitSwitchesMonitor::onElevatorStarted()
 {
-    Trace::out("FloorLimitSwitchesMonitor: Elevator started");  
+    //Trace::out("[SW]  Elevator started");  
     startTsMs = (int32_t)k_uptime_get();
 
     pendingIssue = UNKNOWN_ISSUE;
@@ -91,7 +88,7 @@ void FloorLimitSwitchesMonitor::onElevatorStarted()
 
 void FloorLimitSwitchesMonitor::onElevatorReachedFloor(FloorNumber floorNumber)
 {
-    Trace::out("FloorLimitSwitchesMonitor: Elevator reached floor %d", floorNumber);
+    //Trace::out("Elevator reached floor %d", floorNumber);
 
     // Update switches right now (because stop check is immediate)
     updateSwitchStates();
@@ -108,7 +105,7 @@ void FloorLimitSwitchesMonitor::onElevatorReachedFloor(FloorNumber floorNumber)
 
 void FloorLimitSwitchesMonitor::onElevatorError()
 {
-    Trace::out("FloorLimitSwitchesMonitor: Elevator error detected");
+    Trace::out("[SW]  Elevator error detected");
     k_timer_stop(&checkTimer);
 
     errorAlreadyNotified = true;
@@ -144,7 +141,7 @@ bool FloorLimitSwitchesMonitor::checkDuringMoveOk()
     if (activeCount > 1)
     {
         pendingIssue = ISSUE_LIMIT_SWITCH_MULTIPLE_ACTIVE;
-        Trace::out("FloorLimitSwitchesMonitor: ERROR - multiple switches active (sw0=%d sw1=%d)",
+        Trace::out("[SW]  ERROR - multiple switches active (sw0=%d sw1=%d)",
                    swActive[0], swActive[1]);
         return false;
     }
@@ -155,7 +152,7 @@ bool FloorLimitSwitchesMonitor::checkDuringMoveOk()
         if (activeCount == 1)
         {
             pendingIssue = ISSUE_LIMIT_SWITCH_ACTIVE_WHILE_MOVING;
-            Trace::out("FloorLimitSwitchesMonitor: ERROR - switch active while moving (sw0=%d sw1=%d)",
+            Trace::out("[SW]  ERROR - switch active while moving (sw0=%d sw1=%d)",
                        swActive[0], swActive[1]);
             return false;
         }
@@ -172,7 +169,7 @@ bool FloorLimitSwitchesMonitor::checkAtStopOk(FloorNumber floorNumber)
     if (activeCount != 1)
     {
         pendingIssue = ISSUE_LIMIT_SWITCH_NONE_ACTIVE_AT_STOP;
-        Trace::out("FloorLimitSwitchesMonitor: ERROR - expected 1 active switch at stop, got %d (sw0=%d sw1=%d)",
+        Trace::out("[SW]  ERROR - expected 1 active switch at stop, got %d (sw0=%d sw1=%d)",
                    activeCount, swActive[0], swActive[1]);
         return false;
     }
@@ -183,7 +180,7 @@ bool FloorLimitSwitchesMonitor::checkAtStopOk(FloorNumber floorNumber)
         if (!swActive[floorNumber])
         {
             pendingIssue = ISSUE_LIMIT_SWITCH_WRONG_AT_STOP;
-            Trace::out("FloorLimitSwitchesMonitor: ERROR - wrong switch active at stop (floor=%d sw0=%d sw1=%d)",
+            Trace::out("[SW]  ERROR - wrong switch active at stop (floor=%d sw0=%d sw1=%d)",
                        floorNumber, swActive[0], swActive[1]);
             return false;
         }
@@ -240,15 +237,15 @@ void FloorLimitSwitchesMonitor::SM_processEvent(SMEvents eventId)
         switch (currentState)
         {
             case ST_WAIT_4_ELEVATOR_2_START:
-                Trace::out("FloorLimitSwitchesMonitor: Waiting for elevator to start");
+                //Trace::out("[SW]  Waiting for elevator to start");
                 break;
 
             case ST_MONITORING_SWITCHES:
-                Trace::out("FloorLimitSwitchesMonitor: Monitoring limit switches");
+                //Trace::out("[SW]  Monitoring limit switches");
                 break;
 
             case ST_SWITCH_ERROR:
-                Trace::out("FloorLimitSwitchesMonitor: LIMIT SWITCH ERROR! issue=%d", (int)pendingIssue);
+                //Trace::out("[SW]  LIMIT SWITCH ERROR! issue=%d", (int)pendingIssue);
                 if (!errorAlreadyNotified)
                 {
                     errorAlreadyNotified = true;

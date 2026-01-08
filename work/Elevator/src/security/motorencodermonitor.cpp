@@ -42,7 +42,7 @@ void MotorEncoderMonitor::initialize(elevator::Controller & controller, motor::D
     if (controller_)
     {
         bool subscribeOk = controller_->subscribe(this);
-        Trace::out("MotorEncoderMonitor: Subscribed to controller - result: %d", subscribeOk);
+        Trace::out("[ENC]  Subscribed to controller - result: %d", subscribeOk);
     }
 }
 
@@ -53,7 +53,7 @@ void MotorEncoderMonitor::start()
         timerActive = true;
         errorAlreadyNotified = false;
         currentState = ST_WAIT_4_ELEVATOR_2_START;
-        Trace::out("MotorEncoderMonitor: Started");
+        Trace::out("[ENC]  Started");
     }
 }
 
@@ -63,13 +63,13 @@ void MotorEncoderMonitor::stop()
     {
         timerActive = false;
         k_timer_stop(&checkTimer);
-        Trace::out("MotorEncoderMonitor: Stopped");
+        Trace::out("[ENC]  Stopped");
     }
 }
 
 void MotorEncoderMonitor::onElevatorStarted()
 {
-    Trace::out("MotorEncoderMonitor: Elevator started");
+    //Trace::out("[ENC]  Elevator started");
     SM_processEvent(evElevatorStarted);
 
     if (!decoder_)
@@ -88,7 +88,7 @@ void MotorEncoderMonitor::onElevatorStarted()
 
 void MotorEncoderMonitor::onElevatorReachedFloor(FloorNumber floorNumber)
 {
-    Trace::out("MotorEncoderMonitor: Elevator reached floor %d", floorNumber);
+   // Trace::out("[ENC]  Elevator reached floor %d", floorNumber);
     SM_processEvent(evElevatorReachedFloor);
     k_timer_stop(&checkTimer);
 }
@@ -169,15 +169,15 @@ void MotorEncoderMonitor::SM_processEvent(SMEvents eventId)
         switch (currentState)
         {
             case ST_WAIT_4_ELEVATOR_2_START:
-                Trace::out("MotorEncoderMonitor: Waiting for elevator to start");
+                //Trace::out("[ENC]  Waiting for elevator to start");
                 break;
 
             case ST_MONITORING_MOTOR_POSITION:
-                Trace::out("MotorEncoderMonitor: Monitoring motor position");
+                //Trace::out("[ENC]  Monitoring motor position");
                 break;
 
             case ST_MOTOR_ERROR:
-                Trace::out("MotorEncoderMonitor: ERROR");
+                //Trace::out("[ENC]  ERROR");
                 if (!errorAlreadyNotified)
                 {
                     errorAlreadyNotified = true;
