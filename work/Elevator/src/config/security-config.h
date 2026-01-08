@@ -5,6 +5,7 @@ typedef enum IssueNumber {
     UNKNOWN_ISSUE = 0,
     ISSUE_MAXIMUM_LIFT_EXCEEDED = 1,
     ISSUE_MOTOR_NO_MORE_SPINNING,
+    ISSUE_LIMIT_SWITCHES,
 } IssueNumber;
 
 #endif // SECURITY_CONFIG_H
